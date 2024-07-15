@@ -1,0 +1,181 @@
+{
+  "Association": {
+    "name": "Association",
+    "desc": "",
+    "prompt_xy": "There is an association between ?x and ?y.",
+    "prompt_yx": "There is an association between ?y and ?x.",
+    "domain": [
+      "ChemicalEntity",
+      "GeneOrGeneProduct",
+      "DiseaseOrPhenotypicFeature",
+      "SequenceVariant"
+    ],
+    "range": [
+      "DiseaseOrPhenotypicFeature",
+      "GeneOrGeneProduct",
+      "ChemicalEntity",
+      "SequenceVariant"
+    ],
+    "reflexive": "false",
+    "irreflexive": "true",
+    "symmetric": "true",
+    "antisymmetric": "false",
+    "transitive": "false",
+    "implied_by": [],
+    "tokens": [],
+    "verb": 0
+  },
+  "Bind": {
+    "name": "Bind",
+    "desc": "",
+    "prompt_xy": "?x binds ?y.",
+    "prompt_yx": "?y binds ?x.",
+    "domain": [
+      "GeneOrGeneProduct",
+      "ChemicalEntity"
+    ],
+    "range": [
+      "ChemicalEntity",
+      "GeneOrGeneProduct"
+    ],
+    "reflexive": "false",
+    "irreflexive": "true",
+    "symmetric": "true",
+    "antisymmetric": "false",
+    "transitive": "false",
+    "implied_by": [],
+    "tokens": [],
+    "verb": 0
+  },
+  "Comparison": {
+    "name": "Comparison",
+    "desc": "Denotes that two chemicals are being compared in the document",
+    "prompt_xy": "?x and ?y are being compared.",
+    "prompt_yx": "?y and ?x are being compared.",
+    "domain": [
+      "ChemicalEntity"
+    ],
+    "range": [
+      "ChemicalEntity"
+    ],
+    "reflexive": "false",
+    "irreflexive": "true",
+    "symmetric": "true",
+    "antisymmetric": "false",
+    "transitive": "false",
+    "implied_by": [],
+    "tokens": [],
+    "verb": 0
+  },
+  "Conversion": {
+    "name": "Conversion",
+    "desc": "A chemical converse to the other chemical.",
+    "prompt_xy": "?x converts to ?y.",
+    "prompt_yx": "?y is produced by a reaction with ?x.",
+    "domain": [
+      "ChemicalEntity"
+    ],
+    "range": [
+      "ChemicalEntity"
+    ],
+    "reflexive": "false",
+    "irreflexive": "true",
+    "symmetric": "false",
+    "antisymmetric": "true",
+    "transitive": "false",
+    "implied_by": [],
+    "tokens": [],
+    "verb": 0
+  },
+  "Cotreatment": {
+    "name": "Cotreatment",
+    "desc": "",
+    "prompt_xy": "A combination of ?x and ?y can be used to treat a disease.",
+    "prompt_yx": "A combination of ?y and ?x can be used to treat a disease.",
+    "domain": [
+      "ChemicalEntity"
+    ],
+    "range": [
+      "ChemicalEntity"
+    ],
+    "reflexive": "false",
+    "irreflexive": "true",
+    "symmetric": "true",
+    "antisymmetric": "false",
+    "transitive": "false",
+    "implied_by": [],
+    "tokens": [],
+    "verb": 0
+  },
+  "Drug_Interaction": {
+    "name": "Drug_Interaction",
+    "desc": "",
+    "prompt_xy": "?x interacts with ?y when taken together.",
+    "prompt_yx": "?y interacts with ?x when taken together.",
+    "domain": [
+      "ChemicalEntity"
+    ],
+    "range": [
+      "ChemicalEntity"
+    ],
+    "reflexive": "false",
+    "irreflexive": "true",
+    "symmetric": "true",
+    "antisymmetric": "false",
+    "transitive": "false",
+    "implied_by": [],
+    "tokens": [],
+    "verb": 0
+  },
+  "Negative_Correlation": {
+    "name": "Negative_Correlation",
+    "desc": "",
+    "prompt_xy": "?x is negatively correlated with ?y.",
+    "prompt_yx": "?y is negatively correlated with ?x.",
+    "domain": [
+      "ChemicalEntity",
+      "GeneOrGeneProduct",
+      "SequenceVariant",
+      "DiseaseOrPhenotypicFeature"
+    ],
+    "range": [
+      "ChemicalEntity",
+      "DiseaseOrPhenotypicFeature",
+      "GeneOrGeneProduct"
+    ],
+    "reflexive": "false",
+    "irreflexive": "true",
+    "symmetric": "true",
+    "antisymmetric": "false",
+    "transitive": "false",
+    "implied_by": [],
+    "tokens": [],
+    "verb": 0
+  },
+  "Positive_Correlation": {
+    "name": "Positive_Correlation",
+    "desc": "",
+    "prompt_xy": "?x is positively correlated with ?y.",
+    "prompt_yx": "?y is positively correlated with ?x.",
+    "domain": [
+      "ChemicalEntity",
+      "DiseaseOrPhenotypicFeature",
+      "SequenceVariant",
+      "GeneOrGeneProduct"
+    ],
+    "range": [
+      "GeneOrGeneProduct",
+      "SequenceVariant",
+      "DiseaseOrPhenotypicFeature",
+      "ChemicalEntity"
+    ],
+    "reflexive": "false",
+    "irreflexive": "true",
+    "symmetric": "true",
+    "antisymmetric": "false",
+    "transitive": "false",
+    "implied_by": [],
+    "tokens": [],
+    "verb": 0
+  }
+}
