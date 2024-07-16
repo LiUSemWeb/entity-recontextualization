@@ -41,6 +41,11 @@ These last two are optional and can be adjusted depending on if there are memory
 This process can also be sped up by running the code on multiple machines and pointing `res` to a shared folder.
 
 
+## Results
+This files currently under `res` contain the results from the paper, including those for the various nonlinearities.
+Keep in mind that for `Passes > 0` you will need to read the column `Top-50` instead of `None`.
+
+
 ## Docker
 Docker is not necessary to run this project, we simply used docker containers to parallelize the experiments across the machines available to us.
 `build.sh`, `run_exp.sh`, and the `images/` folder are all there to support that infrastructure.
