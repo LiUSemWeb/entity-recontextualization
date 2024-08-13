@@ -20,17 +20,23 @@ You will also need the original BioRED files.
 These can be found at https://ftp.ncbi.nlm.nih.gov/pub/lu/BioRED/.
 Extract the contents of `BIORED.zip` into the folder `data/biored`.
 Please do not overwrite `rel_info_full.json`.
-You will also need to run the provided conversion script to convert the BioRED data to one that mimicks the DocRED format.
+You will also need to run the provided conversion script to convert the BioRED data to one that mimicks the DocRED format: `biored_conveter.py`.
 
 
 ## Experiments
 To run the experiments, run the following commands from the root directory:
 `python EntitySubstituteTest.py <Task> <Set> <Model Name>     <Passes> <Result Folder> <Batch Size> <Start At>`
+
 `python EntitySubstituteTest.py docred dev   bert-base-cased  2        res             1000         0`
+
 `python EntitySubstituteTest.py docred dev   bert-large-cased 2        res             1000         0`
+
 `python EntitySubstituteTest.py docred dev   roberta-large    2        res             1000         0`
+
 `python EntitySubstituteTest.py biored train bert-large-cased 2        res             1000         0`
+
 `python EntitySubstituteTest.py biored train biobert          2        res             1000         0`
+
 `python EntitySubstituteTest.py biored train pubmedbert       2        res             1000         0`
 
 All parameters have defaults, so the most important parameters to set are `Task`, `Set`, and `Model Name`.
