@@ -46,6 +46,12 @@ This files currently under `res` contain the results from the paper, including t
 Keep in mind that for `Passes > 0` you will need to read the column `Top-50` instead of `None`.
 
 
+## Generating results pages
+You can generate the html files with the results by running `score.py` from the main directory.
+By default it will generate each file once and quit, but you can un-comment the infinite loop to make it constantly read and report the results as you run the experiments.
+The html files use a refresh tag, and so will automatically update when the file changes after about a minute.
+
+
 ## Docker
 Docker is not necessary to run this project, we simply used docker containers to parallelize the experiments across the machines available to us.
 `build.sh`, `run_exp.sh`, and the `images/` folder are all there to support that infrastructure.
@@ -56,5 +62,4 @@ If you do wish to run this via docker, an example command would be:
 
 ## TODO:
 The following need to be cleaned up and added still:
-1. Score script*
-2. Domain and range script
+1. Domain and range script (the files are already present, just need to add the script that generates them)
