@@ -462,6 +462,8 @@ def _inner_score_stuff(self, data, inds, lens, methods, scores, all_plls, return
 
 def extend_bert(fb):
     add_tokens = ['?x', '?y']
+    add_tokens.append('[ENT_BEG]')
+    add_tokens.append('[ENT_END]')
     fb.tokenizer.add_tokens(add_tokens, special_tokens=True)  # Add the tokens to the tokenizer.
     fb.bert.resize_token_embeddings(len(fb.tokenizer))  # Add the tokens to the embedding matrix, initialize with defaults. DO NOT TRAIN.
     fb.entity_tokens = fb.tokenizer("".join(add_tokens), add_special_tokens=False)['input_ids']
@@ -469,7 +471,7 @@ def extend_bert(fb):
 
 
 class Document:
-    def __init__(self, doc, num, mlm=None, use_blanks=True):
+    def __init__(self, doc, num, mlm=None, use_blanks=False):
         self.doc = doc
         self.num = num
         self.mlm = mlm
@@ -654,39 +656,32 @@ class Document:
     def entity_vecs(self, nonlinearity=lambda x:x, pooling=None, passes=0):
         ent_vecs = {}
         ment_inds = {}
-        if self.blank_width > 0:
-            for e, inds in self.masked_doc['ents'].items():
-                ent_vecs[e] = self.mlm.augment(self.ment_vecs[passes][inds], nonlinearity, pooling)
-            minus_one = torch.LongTensor([-1]*self.blank_width).cpu()
-            for i, s in enumerate(self.masked_doc['ment_lens']):
-                ment_inds[i] = minus_one.clone()
-        else:
-            # Each ent_vecs[e] needs to be the correct corresponding set of vectors.
-            # Lengths are available:
-            ment_vecs = {}
-            _s = 0
-            for i, s in enumerate(self.masked_doc['ment_lens']):
-                ment_vecs[i] = self.mlm.augment(self.ment_vecs[passes][_s:_s + s], nonlinearity, None)  # We can't pool here.
-                ment_inds[i] = self.ment_inds[_s:_s + s]
-                if passes > 0:
-                    # ment_inds[i] = [-1]*len(ment_inds[i])
-                    ment_inds[i] = torch.ones_like(ment_inds[i]) * -1
-                _s += s
-            for e, inds in self.masked_doc['ents'].items():
-                ent_vecs[e] = [ment_vecs[m] for m in inds]
+        # Each ent_vecs[e] needs to be the correct corresponding set of vectors.
+        # Lengths are available:
+        ment_vecs = {}
+        _s = 0
+        for i, s in enumerate(self.masked_doc['ment_lens']):
+            ment_vecs[i] = self.mlm.augment(self.ment_vecs[passes][_s:_s + s], nonlinearity, None)  # We can't pool here.
+            ment_inds[i] = self.ment_inds[_s:_s + s]
+            if passes > 0:
+                # ment_inds[i] = [-1]*len(ment_inds[i])
+                ment_inds[i] = torch.ones_like(ment_inds[i]) * -1
+            _s += s
+        for e, inds in self.masked_doc['ents'].items():
+            ent_vecs[e] = [ment_vecs[m] for m in inds]
         return ent_vecs, ment_inds
         
 
-def read_document(task_name: str = 'docred', dset: str = 'dev', *, num_passes=1, mlm = None, path: str = 'data', doc=-1, verbose=False):
+def read_document(task_name: str = 'docred', dset: str = 'dev', *, mlm = None, path: str = 'data', doc=-1, verbose=False):
     if task_name == 'docred' and dset == 'train':
         dset = 'train_annotated'
     with open(f"{path}/{task_name}/{dset}.json") as datafile:
         jfile = json.load(datafile)
         if doc >= 0:
-            yield Document(jfile[doc], doc, mlm=mlm, num_passes=num_passes)
+            yield Document(jfile[doc], doc, mlm=mlm)#, num_passes=num_passes)
         else:
             for i, doc in enumerate(jfile):
-                yield Document(doc, i, mlm=mlm, num_passes=num_passes)
+                yield Document(doc, i, mlm=mlm)#, num_passes=num_passes)
 
 
 def mask_vectors(self, sent, keep_original=False, add_special_tokens=False, padding=False):
@@ -706,7 +701,7 @@ def mask_vectors(self, sent, keep_original=False, add_special_tokens=False, padd
     return torch.stack(token_mat)
 
 
-def run_exp(fb:FitBert, task_name='docred', dset='dev', doc=0, num_passes=1, top_k=0, skip=[], model='bert-large-cased', start_at=0):
+def run_exp(fb:FitBert, resdir, task_name='docred', dset='dev', doc=0, num_passes=1, top_k=0, skip=[], model='bert-large-cased', start_at=0, end_at=1000):
     with torch.no_grad():  # Super enforce no gradients whatsoever.
         torch.cuda.empty_cache()
         if fb is None:
@@ -779,10 +774,10 @@ def run_exp(fb:FitBert, task_name='docred', dset='dev', doc=0, num_passes=1, top
                 
                 d.ment_vecs = dict()
                 for p in out:
-                    if fb.token_width > 0:
-                        d.ment_vecs[p] = out[p].squeeze(0)[mask].view(-1, fb.token_width, V)
-                    else:
-                        d.ment_vecs[p] = out[p].squeeze(0)[mask].view(-1, V)
+                    # if fb.token_width > 0:
+                    #     d.ment_vecs[p] = out[p].squeeze(0)[mask].view(-1, fb.token_width, V)
+                    # else:
+                    d.ment_vecs[p] = out[p].squeeze(0)[mask].view(-1, V)
                     # print(d.ment_vecs[p].shape)
                 del out
                 torch.cuda.empty_cache()
@@ -819,7 +814,7 @@ def meminfo():
     return f"{f:.2f}g/{t:.2f}g"
 
 
-def run_many_experiments(task_name, dset, rel_info, nonlins, scorers, resdir, num_blanks, num_passes=1, max_batch=2000, skip=[], model='bert-large-cased', start_at=0):
+def run_many_experiments(task_name, dset, rel_info, nonlins, scorers, resdir, num_passes=1, max_batch=2000, skip=[], model='bert-large-cased', start_at=0, end_at=1000):
     with torch.no_grad():
         torch.cuda.empty_cache()
         fb = extend_bert(FitBert(model_name=model))
@@ -845,7 +840,7 @@ def run_many_experiments(task_name, dset, rel_info, nonlins, scorers, resdir, nu
             pi['vecs'] = fb.bert.get_input_embeddings()(tkns.to(fb.device)).cpu()
             prompt_data[prompt] = pi
         
-        for p_doc, docfile in run_exp(fb, task_name=task_name, dset=dset, doc=-1, num_passes=num_passes, skip=skip, model=model, start_at=start_at, top_k=0):
+        for p_doc, docfile in run_exp(fb, resdir, task_name=task_name, dset=dset, doc=-1, num_passes=num_passes, skip=skip, model=model, start_at=start_at, end_at=end_at, top_k=0):
             all_scores = dict()
             for nps in range(0, num_passes):
                 if os.path.exists(docfile.replace(f'_{num_passes}p', f'_{nps}p')):
@@ -976,8 +971,8 @@ if __name__ == '__main__':
     # data_path = sys.argv[3] if len(sys.argv) > 3 else "data"
     task_name = sys.argv[1] if len(sys.argv) > 1 else "docred"
     data_set = sys.argv[2] if len(sys.argv) > 2 else "dev"
-    model = sys.argv[3] if len(sys.argv) > 3 else "bert-large-cased"
-    num_passes = int(sys.argv[4]) if len(sys.argv) > 4 else 3
+    model = sys.argv[3] if len(sys.argv) > 3 else "bert-base-cased"
+    num_passes = int(sys.argv[4]) if len(sys.argv) > 4 else 2
     resdir = sys.argv[5] if len(sys.argv) > 5 else "res"
     max_batch = int(sys.argv[6]) if len(sys.argv) > 6 else 1000
     start_at = int(sys.argv[7]) if len(sys.argv) > 7 else 0
